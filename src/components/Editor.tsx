@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef} from "react";
+import React, { useState, useCallback, useEffect, } from "react";
 import { Editor, convertToRaw, convertFromRaw, EditorState, RichUtils, DraftHandleValue, ContentState} from "draft-js";
 import { useRecoilValue } from "recoil";
 import { btnAtom } from "../../store/atom";
@@ -18,14 +18,7 @@ const LocalEditor: React.FC = () =>{
         return text
 
     })
-    const editorRef = useRef<Editor | null>(null);
-    const focusEditor = () => {
-        if(editorRef.current){
-            editorRef.current.focus()
-        }
-    }
 
-    useEffect(()=>{focusEditor()},[])
     const btnState = useRecoilValue(btnAtom)
     useEffect(()=>{
         if(btnState === true){
@@ -64,22 +57,22 @@ const LocalEditor: React.FC = () =>{
             const text = block.text;
             console.log(text);
             if (char === '#' ) {
-                setEditorState((newState)=>RichUtils.toggleBlockType(newState, 'header-one'));
+                setEditorState((newState:EditorState)=>RichUtils.toggleBlockType(newState, 'header-one'));
                 return 'handled';
             }
-
             if (char === '_') {
-                setEditorState(RichUtils.toggleInlineStyle(editorState, 'UNDERLINE'))
+                setEditorState((newState:EditorState)=>RichUtils.toggleInlineStyle(newState, 'UNDERLINE'))
                 return 'handled'
             }
-
+            
             if(char === '*'){
-                setEditorState((prevState)=>RichUtils.toggleInlineStyle(prevState, 'BOLD'));
+                setEditorState((newState:EditorState)=>RichUtils.toggleInlineStyle(newState, 'BOLD'));
                 return 'handled';
             }
-
+            
+            // if(char === '*' && text.startsWith('** '))
             if (char === '^') {
-                onColorClick('red')
+                onChange(RichUtils.toggleInlineStyle(editorState, 'COLOR_RED'));
                 return 'handled';
               }
         }
@@ -87,21 +80,16 @@ const LocalEditor: React.FC = () =>{
         
     }
 
-    const colorStyleMap = {
-        'COLOR_RED': {
-          color: 'red',
-        },
-        // Add more styles as needed
-      };
     const onChange = useCallback((newEditorState:EditorState)=>{
         setEditorState(newEditorState)
     },[])
-
-    const onColorClick = useCallback((color: string) => {
-        console.log('inside color')
-        onChange(RichUtils.toggleInlineStyle(editorState, `COLOR_${color.toUpperCase()}`));
-    }, [onChange, editorState]);
     
+    // const editorRef = useRef<Editor | null>(null);
+    // const focusEditor = () => {
+    //     if(editorRef.current){
+    //         editorRef.current.focus()
+    //     }
+    // }
     
     return(
         <div className="h-full">
@@ -110,8 +98,6 @@ const LocalEditor: React.FC = () =>{
             onChange={onChange}
             editorState={editorState}
             handleBeforeInput={handleBeforeInput}
-            customStyleMap={colorStyleMap}
-            ref = {focusEditor}
             />
         </div>)
 }
