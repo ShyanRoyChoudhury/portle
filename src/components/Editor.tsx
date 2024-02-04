@@ -18,7 +18,10 @@ const LocalEditor: React.FC = () =>{
         return text
 
     })
+    
+    
 
+    
     const btnState = useRecoilValue(btnAtom)
     useEffect(()=>{
         if(btnState === true){
@@ -57,20 +60,20 @@ const LocalEditor: React.FC = () =>{
             const text = block.text;
             console.log(text);
             if (char === '#' ) {
-                setEditorState((newState:EditorState)=>RichUtils.toggleBlockType(newState, 'header-one'));
+                setEditorState((newState)=>RichUtils.toggleBlockType(newState, 'header-one'));
                 return 'handled';
             }
+            // if(char === '*' && text.startsWith('*** ))
             if (char === '_') {
-                setEditorState((newState:EditorState)=>RichUtils.toggleInlineStyle(newState, 'UNDERLINE'))
+                setEditorState(RichUtils.toggleInlineStyle(editorState, 'UNDERLINE'))
                 return 'handled'
             }
-            
+
             if(char === '*'){
-                setEditorState((newState:EditorState)=>RichUtils.toggleInlineStyle(newState, 'BOLD'));
+                setEditorState((prevState)=>RichUtils.toggleInlineStyle(prevState, 'BOLD'));
                 return 'handled';
             }
-            
-            // if(char === '*' && text.startsWith('** '))
+            // if(char === '*' && text.startsWith('** ))
             if (char === '^') {
                 onChange(RichUtils.toggleInlineStyle(editorState, 'COLOR_RED'));
                 return 'handled';
@@ -80,16 +83,16 @@ const LocalEditor: React.FC = () =>{
         
     }
 
+    const colorStyleMap = {
+        'COLOR_RED': {
+          color: 'red',
+        },
+      };
+
     const onChange = useCallback((newEditorState:EditorState)=>{
         setEditorState(newEditorState)
     },[])
     
-    // const editorRef = useRef<Editor | null>(null);
-    // const focusEditor = () => {
-    //     if(editorRef.current){
-    //         editorRef.current.focus()
-    //     }
-    // }
     
     return(
         <div className="h-full">
@@ -98,6 +101,7 @@ const LocalEditor: React.FC = () =>{
             onChange={onChange}
             editorState={editorState}
             handleBeforeInput={handleBeforeInput}
+            customStyleMap={colorStyleMap}
             />
         </div>)
 }
